@@ -26,17 +26,20 @@ int main(){
     {
         strcat(letters," ");
         h+=1;
-    }
+    };
     for (i=0;i<ASCIIs;i++)
-        mutex[i] = PTHREAD_MUTEX_INITIALIZER;
-    thread_handles = malloc(thread_count* sizeof(pthread_t));
-    for (i=0;i<thread_count;i++)
     {
-        pthread_create(&thread_handles[i],NULL,task(),(void*) i);
+        pthread_mutex_init(&mutex,NULL);
+//        mutex[i]= PTHREAD_MUTEX_INITIALIZER;
     }
-    for (i=0;i<thread_count;i++)
+    thread_handles = malloc(thread_count* sizeof(pthread_t));
+    for (thread=0;thread<thread_count;thread++)
     {
-        pthread_join(thread_handles[i],NULL);
+        pthread_create(&thread_handles[thread],NULL,task,(void*) thread);
+    }
+    for (thread=0;thread<thread_count;thread++)
+    {
+        pthread_join(thread_handles[thread],NULL);
     }
 
     /*
@@ -66,8 +69,9 @@ void *task(void* rank){
   count[m] and another thread changes count[n], where the value of m and n are different.
   The last segment may not be the same size of other segments.
     */
-    int i,ch;
-    for (i=h/thread_count*rank;i<h/thread_count*(rank+1);i++)
+    int i,ch,myrank;
+    myrank = (int) rank;
+    for (i=h/thread_count*myrank;i<h/thread_count*(myrank+1);i++)
     {
         ch =letters[i];
         pthread_mutex_lock( &mutex[ch] );
